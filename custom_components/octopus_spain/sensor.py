@@ -20,6 +20,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import CONF_PASSWORD, CONF_EMAIL, UPDATE_INTERVAL, PERIOD_PEAK_WITH_TAXES, PERIOD_STANDARD_WITH_TAXES, PERIOD_VALLEY_WITH_TAXES
+from .coordinator import EnergyCoordinator
 from .lib.octopus_spain import OctopusSpain
 
 _LOGGER = logging.getLogger(__name__)
@@ -50,6 +51,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
             sensors.append(OctopusPrice(account, "standard", "Precio Llano", coordinator, single))
             sensors.append(OctopusPrice(account, "valley", "Precio Valle", coordinator, single))
             sensors.append(OctopusPrice(account, "surplus", "Precio Excedente", coordinator, single))
+
+    energy = EnergyCoordinator(hass, email, password)
+    await energy.async_config_entry_first_refresh()
 
     async_add_entities(sensors)
 
