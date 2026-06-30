@@ -54,7 +54,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
     energy = EnergyCoordinator(hass, email, password)
     await energy.async_config_entry_first_refresh()
-    for cups in (energy.data or {}):
+    for cups in energy.data or {}:
         sensors.append(OctopusLastDayConsumption(cups, energy))
 
     async_add_entities(sensors)

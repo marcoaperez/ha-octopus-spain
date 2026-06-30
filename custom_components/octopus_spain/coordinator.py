@@ -48,9 +48,7 @@ class EnergyCoordinator(DataUpdateCoordinator):
     async def _compute_start(self, cups: str, end: datetime) -> datetime:
         """Si ya hay estadísticas, parte de la última hora; si no, backfill."""
         statistic_id = f"{DOMAIN_SOURCE}:consumo_{cups.lower()}"
-        last = await get_instance(self.hass).async_add_executor_job(
-            get_last_statistics, self.hass, 1, statistic_id, True, {"sum"}
-        )
+        last = await get_instance(self.hass).async_add_executor_job(get_last_statistics, self.hass, 1, statistic_id, True, {"sum"})
         if last.get(statistic_id):
             return _row_start_to_datetime(last[statistic_id][0]["start"])
         return end - timedelta(days=STATISTICS_BACKFILL_DAYS)

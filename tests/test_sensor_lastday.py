@@ -7,8 +7,7 @@ from custom_components.octopus_spain.sensor import OctopusLastDayConsumption
 
 
 def test_sensor_expone_kwh_y_fecha():
-    coord = SimpleNamespace(data={"ES0021000013208057RM": {
-        "last_day_kwh": 10.705, "last_day_date": date(2026, 6, 28)}})
+    coord = SimpleNamespace(data={"ES0021000013208057RM": {"last_day_kwh": 10.705, "last_day_date": date(2026, 6, 28)}})
     sensor = OctopusLastDayConsumption("ES0021000013208057RM", coord)
 
     # pylint: disable=protected-access

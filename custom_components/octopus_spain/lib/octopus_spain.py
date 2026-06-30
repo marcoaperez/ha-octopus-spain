@@ -120,11 +120,13 @@ class OctopusSpain:
                 continue
             if n.get("units") not in (None, "KILOWATT_HOURS"):
                 continue
-            out.append({
-                "start": datetime.fromisoformat(n["intervalStart"]),
-                "end": datetime.fromisoformat(n["intervalEnd"]),
-                "value": float(n["value"]),
-            })
+            out.append(
+                {
+                    "start": datetime.fromisoformat(n["intervalStart"]),
+                    "end": datetime.fromisoformat(n["intervalEnd"]),
+                    "value": float(n["value"]),
+                }
+            )
         return out
 
     async def account(self, account: str):

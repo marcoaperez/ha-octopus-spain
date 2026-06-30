@@ -51,9 +51,7 @@ async def async_import_statistics(hass: HomeAssistant, cups: str, flow: str, rea
 
     statistic_id = f"{DOMAIN_SOURCE}:{flow}_{cups.lower()}"
 
-    last = await get_instance(hass).async_add_executor_job(
-        get_last_statistics, hass, 1, statistic_id, True, {"sum"}
-    )
+    last = await get_instance(hass).async_add_executor_job(get_last_statistics, hass, 1, statistic_id, True, {"sum"})
     start_sum = 0.0
     after: datetime | None = None
     if last.get(statistic_id):
