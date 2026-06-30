@@ -1,4 +1,18 @@
-# Componente Octopus Spain para Home Assistant
+# 🍴 Octopus Spain (FORK de Marco) — con Consumo y Vertido
+
+> ⚠️ **Este es un fork personal de [`miguelangellv/ha-octopus-spain`](https://github.com/miguelangellv/ha-octopus-spain)**, NO el componente oficial.
+> Si en HACS dudas cuál es: **este es `marcoaperez/ha-octopus-spain`**.
+>
+> **Qué añade respecto al original:**
+> - 📊 **Consumo eléctrico horario** del contador inteligente como *estadísticas de largo plazo* → se integra en el **panel de Energía** de Home Assistant.
+> - 🔌 **Vertido/excedente** (si hay autoconsumo) como estadística independiente.
+> - 🗓️ Sensor **`Consumo Último Día`** (kWh del último día disponible).
+> - Backfill inicial de **12 meses** + actualización diaria incremental.
+>
+> Mantiene todo lo del original (Solar Wallet, crédito, última factura, precios por periodo). Integración de **solo lectura**.
+> Detalle técnico en los commits de la rama `feature/consumo-vertido`.
+
+---
 
 ## ¿Qué es Octopus Energy?
 
