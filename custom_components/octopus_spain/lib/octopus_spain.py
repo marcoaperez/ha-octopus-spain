@@ -8,10 +8,11 @@ GRAPH_QL_ENDPOINT = "https://api.oees-kraken.energy/v1/graphql/"
 SOLAR_WALLET_LEDGER = "SOLAR_WALLET_LEDGER"
 ELECTRICITY_LEDGER = "SPAIN_ELECTRICITY_LEDGER"
 
-# La API limita las consultas a 10.000 nodos (error KT-CT-1189) y el coste se
-# calcula sobre el `first` solicitado. Pedimos una conexión por petición, así
-# que el coste es ~READINGS_PAGE nodos: 2000 deja amplio margen bajo 10.000.
-READINGS_PAGE = 2000
+# La API limita el tamaño de página de readings a 100 (un `first` mayor da
+# "Invalid pagination parameters"). Paginamos con `after`/`endCursor`. Con 100
+# nodos por petición también quedamos muy por debajo del límite de 10.000 nodos
+# (KT-CT-1189). Un backfill de 12 meses (~8760 h) son ~88 peticiones por flujo.
+READINGS_PAGE = 100
 
 
 class OctopusApiError(Exception):
