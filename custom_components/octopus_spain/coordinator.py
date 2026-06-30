@@ -7,10 +7,10 @@ import homeassistant.util.dt as dt_util
 from homeassistant.components.recorder import get_instance
 from homeassistant.components.recorder.statistics import get_last_statistics
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import ENERGY_UPDATE_INTERVAL, READING_GRANULARITY, STATISTICS_BACKFILL_DAYS
-from .lib.octopus_spain import OctopusSpain
+from .lib.octopus_spain import OctopusApiError, OctopusSpain
 from .statistics import DOMAIN_SOURCE, _row_start_to_datetime, async_import_statistics
 
 _LOGGER = logging.getLogger(__name__)
@@ -32,18 +32,21 @@ class EnergyCoordinator(DataUpdateCoordinator):
         if not await self._api.login():
             return self.data or {}
 
-        accounts = await self._api.accounts()
-        result = {}
-        end = dt_util.utcnow().replace(minute=0, second=0, microsecond=0)
-        for account in accounts:
-            for cups in await self._api.cups(account):
-                start = await self._compute_start(cups, end)
-                readings = await self._api.readings(account, start, end, READING_GRANULARITY)
-                await async_import_statistics(self.hass, cups, "consumo", readings["import"])
-                if readings["export"]:
-                    await async_import_statistics(self.hass, cups, "vertido", readings["export"])
-                result[cups] = self._last_day(readings["import"])
-        return result
+        try:
+            accounts = await self._api.accounts()
+            result = {}
+            end = dt_util.utcnow().replace(minute=0, second=0, microsecond=0)
+            for account in accounts:
+                for cups in await self._api.cups(account):
+                    start = await self._compute_start(cups, end)
+                    readings = await self._api.readings(account, start, end, READING_GRANULARITY)
+                    await async_import_statistics(self.hass, cups, "consumo", readings["import"])
+                    if readings["export"]:
+                        await async_import_statistics(self.hass, cups, "vertido", readings["export"])
+                    result[cups] = self._last_day(readings["import"])
+            return result
+        except OctopusApiError as err:
+            raise UpdateFailed(f"Error de la API de Octopus: {err}") from err
 
     async def _compute_start(self, cups: str, end: datetime) -> datetime:
         """Si ya hay estadísticas, parte de la última hora; si no, backfill."""
