@@ -58,6 +58,25 @@ class OctopusSpain:
 
         return list(map(lambda a: a["number"], response["data"]["viewer"]["accounts"]))
 
+    async def cups(self, account: str):
+        """Get the electricity CUPS identifiers of an account."""
+        query = """
+            query ($account: String!) {
+              account(accountNumber: $account) {
+                properties { electricitySupplyPoints { cups } }
+              }
+            }
+        """
+        headers = {"authorization": self._token}
+        client = GraphqlClient(endpoint=GRAPH_QL_ENDPOINT, headers=headers)
+        response = await client.execute_async(query, {"account": account})
+        result = []
+        for prop in response["data"]["account"]["properties"] or []:
+            for spp in prop.get("electricitySupplyPoints", []) or []:
+                if spp.get("cups"):
+                    result.append(spp["cups"])
+        return result
+
     async def account(self, account: str):
         """Get account data from Octopus Spain API."""
 
