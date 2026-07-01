@@ -1,4 +1,4 @@
-"""Construcción e inyección de estadísticas de consumo/vertido en el recorder de HA."""
+"""Build and inject consumption/export statistics into the HA recorder."""
 
 from datetime import datetime, timezone
 
@@ -18,13 +18,13 @@ DOMAIN_SOURCE = "octopus_spain"
 
 
 def build_statistics(readings: list[dict], start_sum: float = 0.0, after: datetime | None = None) -> list[dict]:
-    """Convierte lecturas horarias en estadísticas acumuladas.
+    """Turn hourly readings into cumulative statistics.
 
-    - readings: lista de {start, end, value} (value en kWh).
-    - start_sum: suma acumulada previa (para continuar el histórico).
-    - after: si se indica, descarta lecturas cuyo inicio sea <= after (UTC).
+    - readings: list of {start, end, value} (value in kWh).
+    - start_sum: previous cumulative sum (to continue an existing series).
+    - after: if set, drop readings whose start is <= after (UTC).
 
-    Devuelve [{start(UTC), state, sum}] ordenado por tiempo.
+    Returns [{start(UTC), state, sum}] sorted by time.
     """
     stats: list[dict] = []
     running = start_sum
@@ -38,14 +38,14 @@ def build_statistics(readings: list[dict], start_sum: float = 0.0, after: dateti
 
 
 def _row_start_to_datetime(value) -> datetime:
-    """El 'start' de una fila de estadística puede ser timestamp (float) o datetime."""
+    """A statistics row 'start' may be a timestamp (float) or a datetime."""
     if isinstance(value, datetime):
         return value.astimezone(timezone.utc)
     return datetime.fromtimestamp(value, tz=timezone.utc)
 
 
 async def async_import_statistics(hass: HomeAssistant, cups: str, flow: str, readings: list[dict]) -> None:
-    """Inyecta lecturas como estadísticas externas (flow ∈ {'consumo','vertido'})."""
+    """Inject readings as external statistics (flow is one of 'consumo'/'vertido')."""
     if not readings:
         return
 

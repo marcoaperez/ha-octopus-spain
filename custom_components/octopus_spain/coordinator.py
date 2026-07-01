@@ -1,4 +1,4 @@
-"""Coordinator de energía (consumo/vertido) para Octopus Spain."""
+"""Energy coordinator (consumption/export) for Octopus Spain."""
 
 import logging
 from datetime import datetime, timedelta
@@ -17,7 +17,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class EnergyCoordinator(DataUpdateCoordinator):
-    """Coordina la descarga de lecturas y su inyección como estadísticas."""
+    """Fetches readings and injects them as long-term statistics."""
 
     def __init__(self, hass: HomeAssistant, email: str, password: str):
         super().__init__(
@@ -46,10 +46,10 @@ class EnergyCoordinator(DataUpdateCoordinator):
                     result[cups] = self._last_day(readings["import"])
             return result
         except OctopusApiError as err:
-            raise UpdateFailed(f"Error de la API de Octopus: {err}") from err
+            raise UpdateFailed(f"Octopus API error: {err}") from err
 
     async def _compute_start(self, cups: str, end: datetime) -> datetime:
-        """Si ya hay estadísticas, parte de la última hora; si no, backfill."""
+        """Resume from the last stored hour if statistics exist, else backfill."""
         statistic_id = f"{DOMAIN_SOURCE}:consumo_{cups.lower()}"
         last = await get_instance(self.hass).async_add_executor_job(get_last_statistics, self.hass, 1, statistic_id, True, {"sum"})
         if last.get(statistic_id):
@@ -58,7 +58,7 @@ class EnergyCoordinator(DataUpdateCoordinator):
 
     @staticmethod
     def _last_day(import_readings: list[dict]) -> dict:
-        """Suma del último día disponible (para el sensor 'consumo último día')."""
+        """Total of the last available day (for the 'last day consumption' sensor)."""
         if not import_readings:
             return {"last_day_kwh": None, "last_day_date": None}
         last_date = max(r["start"].date() for r in import_readings)

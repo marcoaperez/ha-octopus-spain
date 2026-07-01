@@ -8,15 +8,15 @@ GRAPH_QL_ENDPOINT = "https://api.oees-kraken.energy/v1/graphql/"
 SOLAR_WALLET_LEDGER = "SOLAR_WALLET_LEDGER"
 ELECTRICITY_LEDGER = "SPAIN_ELECTRICITY_LEDGER"
 
-# La API limita el tamaño de página de readings a 100 (un `first` mayor da
-# "Invalid pagination parameters"). Paginamos con `after`/`endCursor`. Con 100
-# nodos por petición también quedamos muy por debajo del límite de 10.000 nodos
-# (KT-CT-1189). Un backfill de 12 meses (~8760 h) son ~88 peticiones por flujo.
+# The API caps the readings page size at 100 (a larger `first` returns
+# "Invalid pagination parameters"). We paginate with `after`/`endCursor`. With
+# 100 nodes per request we also stay well below the 10,000-node limit
+# (KT-CT-1189). A 12-month backfill (~8760 h) is ~88 requests per flow.
 READINGS_PAGE = 100
 
 
 class OctopusApiError(Exception):
-    """Error devuelto por la API GraphQL de Octopus (respuesta con `errors`)."""
+    """Error returned by the Octopus GraphQL API (a response with `errors`)."""
 
 
 class OctopusSpain:
@@ -90,7 +90,7 @@ class OctopusSpain:
     async def readings(self, account: str, start, end, granularity: str = "HOUR"):
         """Get import (consumption) and export readings between start and end.
 
-        Pagina cada flujo por separado para respetar el límite de nodos de la API.
+        Each flow is paginated separately to respect the API node limit.
         """
         return {
             "import": await self._fetch_connection(account, start, end, granularity, "importReadings"),
@@ -98,7 +98,7 @@ class OctopusSpain:
         }
 
     async def _fetch_connection(self, account: str, start, end, granularity: str, field: str):
-        """Pagina una conexión de lecturas (importReadings o exportReadings)."""
+        """Paginate one readings connection (importReadings or exportReadings)."""
         query = (
             """
             query ($account: String!, $start: DateTime!, $end: DateTime!, $granularity: TimeGranularities, $first: Int!, $after: String) {
@@ -151,7 +151,7 @@ class OctopusSpain:
         errors = response.get("errors") or []
         if errors:
             return "; ".join(e.get("message", "") for e in errors)
-        return "Respuesta sin datos de la API de Octopus"
+        return "Octopus API returned no data"
 
     @staticmethod
     def _parse_readings(edges):

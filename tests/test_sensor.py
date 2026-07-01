@@ -27,7 +27,7 @@ async def test_async_setup_entry_creates_sensors(hass: HomeAssistant):
         }
     }
 
-    # Patch ambos coordinators para evitar llamadas reales a la API
+    # Patch both coordinators to avoid real API calls
     with (
         patch("custom_components.octopus_spain.sensor.OctopusCoordinator", autospec=True) as mock_coordinator_class,
         patch("custom_components.octopus_spain.sensor.EnergyCoordinator", autospec=True) as mock_energy_class,
