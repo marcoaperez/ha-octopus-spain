@@ -52,8 +52,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
             sensors.append(OctopusPrice(account, "valley", "Precio Valle", coordinator, single))
             sensors.append(OctopusPrice(account, "surplus", "Precio Excedente", coordinator, single))
 
-    # Refresco no bloqueante: si la energía falla, los sensores de saldos siguen
-    # cargando y el coordinator reintenta en su intervalo (no rompe la integración).
+    # Non-blocking refresh: if energy fails, the balance sensors still load and
+    # the coordinator retries on its interval (it does not break the integration).
     energy = EnergyCoordinator(hass, email, password)
     await energy.async_refresh()
     for cups in energy.data or {}:
@@ -193,7 +193,7 @@ class OctopusPrice(CoordinatorEntity, SensorEntity):
 
 
 class OctopusLastDayConsumption(CoordinatorEntity, SensorEntity):
-    """Consumo (kWh) del último día disponible en la API."""
+    """Consumption (kWh) of the last day available from the API."""
 
     def __init__(self, cups: str, coordinator):
         super().__init__(coordinator=coordinator)
